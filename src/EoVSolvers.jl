@@ -4,6 +4,6 @@ using DocStringExtensions
 
 include("step.jl")
 
-export rk4_step!, rk4_step_state_eov!
+export state_rk4_step!, state_eov_rk4_step!
 
 end

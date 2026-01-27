@@ -18,7 +18,7 @@ Iterate a single step of the Runge-Kutta 4th order method for a given ODE model.
 Nothing, as the argument `x` is modified in-place to contain the updated state after the step.
 
 """
-function rk4_step!(
+function state_rk4_step!(
     x::AbstractVector{X},
     f!::V,
     t0::T,
@@ -79,7 +79,7 @@ Iterate a single step of the Runge-Kutta 4th order method for the state and equa
 Nothing, as the arguments `x` and `Q` are modified in-place to contain the updated state and state transition matrix after the step.
 
 """
-function rk4_step_state_eov!(
+function state_eov_rk4_step!(
     x::AbstractVector{X},
     Q::AbstractMatrix{X},
     f!::V,
