@@ -1,0 +1,13 @@
+name = "EoVSolvers"
+uuid = "67b1da90-2497-4d59-993a-3a83c9b5d3cb"
+authors = ["Liam A. A. Blake <liam.blake@adelaide.edu.au>"]
+version = "1.0.0-DEV"
+
+[compat]
+julia = "1.10.10"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]

@@ -1,0 +1,5 @@
+style = "sciml"
+margin = 100
+whitespace_in_kwargs = true
+conditional_to_if = true
+separate_kwargs_with_semicolon = true
