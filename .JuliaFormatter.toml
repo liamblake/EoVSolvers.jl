@@ -1,4 +1,3 @@
-style = "sciml"
 margin = 100
 whitespace_in_kwargs = true
 conditional_to_if = true
