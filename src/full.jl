@@ -43,7 +43,7 @@ end
 """
 $(TYPEDSIGNATURES)
 
-Iterate a single step of the Runge-Kutta 4th order method for the state and state transition matrix of an ODE model.
+Iterate the Runge-Kutta 4th order method for the state and state transition matrix of an ODE model.
 
 # Arguments
 - `x::AbstractVector{X}`: Current state vector. This is used as the initial condition and modified in-place to contain the updated state after the step.
