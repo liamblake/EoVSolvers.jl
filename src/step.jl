@@ -74,6 +74,7 @@ Iterate a single step of the Runge-Kutta 4th order method for the state and equa
 - `_mat_alloc1::AbstractMatrix{X}`: Preallocated matrix for intermediate matrix computations.
 - `_mat_alloc2::AbstractMatrix{X}`: Preallocated matrix for intermediate matrix computations.
 - `_mat_alloc3::AbstractMatrix{X}`: Preallocated matrix for intermediate matrix computations.
+- `_mat_alloc4::AbstractMatrix{X}`: Preallocated matrix for intermediate matrix computations.
 
 # Returns
 Nothing, as the arguments `x` and `Q` are modified in-place to contain the updated state and state transition matrix after the step.
@@ -92,6 +93,7 @@ function state_eov_rk4_step!(
     _mat_alloc1::AbstractMatrix{X} = similar(Q),
     _mat_alloc2::AbstractMatrix{X} = similar(Q),
     _mat_alloc3::AbstractMatrix{X} = similar(Q),
+    _mat_alloc4::AbstractMatrix{X} = similar(Q),
 ) where {X<:Real,V<:Function,J<:Function,T<:Real}
 
     # Copy state into state_alloc2
@@ -117,7 +119,9 @@ function state_eov_rk4_step!(
     f!(_state_alloc2, _state_alloc3, t1 + 0.5 * dt)
     rmul!(_state_alloc2, dt)
 
-    _mat_alloc2 .= _mat_alloc3 * (_mat_alloc1 + 0.5 * _mat_alloc2)
+    copyto!(_mat_alloc4, _mat_alloc1)
+    axpy!(0.5, _mat_alloc2, _mat_alloc4)
+    mul!(_mat_alloc2, _mat_alloc3, _mat_alloc4)
     rmul!(_mat_alloc2, dt)
 
     axpy!(1.0 / 3.0, _state_alloc2, x)
@@ -130,7 +134,9 @@ function state_eov_rk4_step!(
     f!(_state_alloc2, _state_alloc3, t1 + 0.5 * dt)
     rmul!(_state_alloc2, dt)
 
-    _mat_alloc2 .= _mat_alloc3 * (_mat_alloc1 + 0.5 * _mat_alloc2)
+    copyto!(_mat_alloc4, _mat_alloc1)
+    axpy!(0.5, _mat_alloc2, _mat_alloc4)
+    mul!(_mat_alloc2, _mat_alloc3, _mat_alloc4)
     rmul!(_mat_alloc2, dt)
 
     axpy!(1.0 / 3.0, _state_alloc2, x)
@@ -143,7 +149,9 @@ function state_eov_rk4_step!(
     f!(_state_alloc2, _state_alloc3, t1 + dt)
     rmul!(_state_alloc2, dt)
 
-    _mat_alloc2 .= _mat_alloc3 * (_mat_alloc1 + _mat_alloc2)
+    copyto!(_mat_alloc4, _mat_alloc1)
+    axpy!(1.0, _mat_alloc2, _mat_alloc4)
+    mul!(_mat_alloc2, _mat_alloc3, _mat_alloc4)
     rmul!(_mat_alloc2, dt)
 
     axpy!(1.0 / 6.0, _state_alloc2, x)

@@ -38,6 +38,7 @@ function state_eov_rk4_rescaling!(
     _mat_alloc1::AbstractMatrix{X} = similar(Q),
     _mat_alloc2::AbstractMatrix{X} = similar(Q),
     _mat_alloc3::AbstractMatrix{X} = similar(Q),
+    _mat_alloc4::AbstractMatrix{X} = similar(Q),
 ) where {X<:Real,V<:Function,J<:Function,T<:Real}
     if L < 1
         throw(ArgumentError("Rescaling threshold L must be at least 1 for algorithm to iterate."))
@@ -70,6 +71,7 @@ function state_eov_rk4_rescaling!(
                 _mat_alloc1 = _mat_alloc1,
                 _mat_alloc2 = _mat_alloc2,
                 _mat_alloc3 = _mat_alloc3,
+                _mat_alloc4 = _mat_alloc4,
             )
             t += dt
             nv = opnorm(Q)

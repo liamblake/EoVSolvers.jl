@@ -76,6 +76,7 @@ function state_eov_rk4!(
     _mat_alloc1::AbstractMatrix{X} = similar(Q),
     _mat_alloc2::AbstractMatrix{X} = similar(Q),
     _mat_alloc3::AbstractMatrix{X} = similar(Q),
+    _mat_alloc4::AbstractMatrix{X} = similar(Q),
 ) where {X<:Real,V<:Function,J<:Function,T<:Real}
     t = t0
     while t + dt < t1
@@ -92,6 +93,7 @@ function state_eov_rk4!(
             _mat_alloc1 = _mat_alloc1,
             _mat_alloc2 = _mat_alloc2,
             _mat_alloc3 = _mat_alloc3,
+            _mat_alloc4 = _mat_alloc4,
         )
         t += dt
     end
@@ -109,6 +111,7 @@ function state_eov_rk4!(
             _mat_alloc1 = _mat_alloc1,
             _mat_alloc2 = _mat_alloc2,
             _mat_alloc3 = _mat_alloc3,
+            _mat_alloc4 = _mat_alloc4,
         )
     end
 
