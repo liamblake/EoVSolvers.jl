@@ -48,7 +48,7 @@ function state_eov_rk4_rescaling!(
     t = t0
 
     while t < t1
-        nv = opnorm(Q)
+        nv = opnorm(Q, 1)
         s *= nv
         rmul!(Q, nv^(-1))
         nv = 1.0
@@ -74,7 +74,7 @@ function state_eov_rk4_rescaling!(
                 _mat_alloc4 = _mat_alloc4,
             )
             t += dt
-            nv = opnorm(Q)
+            nv = opnorm(Q, 1)
         end
 
         # s *= nv
