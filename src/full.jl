@@ -29,12 +29,12 @@ function state_rk4!(
     _alloc3::AbstractVector{X} = similar(x),
 ) where {X<:Real,V<:Function,T<:Real}
     t = t0
-    while t + dt < t1
+    while t < t1
+        if t + dt > t1
+            dt = t1 - t
+        end
         state_rk4_step!(x, f!, t, dt; _alloc1 = _alloc1, _alloc2 = _alloc2, _alloc3 = _alloc3)
         t += dt
-    end
-    if t < t1
-        state_rk4_step!(x, f!, t, t1 - t; _alloc1 = _alloc1, _alloc2 = _alloc2, _alloc3 = _alloc3)
     end
 
     return nothing
@@ -79,7 +79,10 @@ function state_eov_rk4!(
     _mat_alloc4::AbstractMatrix{X} = similar(Q),
 ) where {X<:Real,V<:Function,J<:Function,T<:Real}
     t = t0
-    while t + dt < t1
+    while t < t1
+        if t + dt > t1
+            dt = t1 - t
+        end
         state_eov_rk4_step!(
             x,
             Q,
@@ -97,23 +100,7 @@ function state_eov_rk4!(
         )
         t += dt
     end
-    if t < t1
-        state_eov_rk4_step!(
-            x,
-            Q,
-            f!,
-            jac!,
-            t,
-            t1 - t;
-            _state_alloc1 = _state_alloc1,
-            _state_alloc2 = _state_alloc2,
-            _state_alloc3 = _state_alloc3,
-            _mat_alloc1 = _mat_alloc1,
-            _mat_alloc2 = _mat_alloc2,
-            _mat_alloc3 = _mat_alloc3,
-            _mat_alloc4 = _mat_alloc4,
-        )
-    end
+
 
     return nothing
 end
