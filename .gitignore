@@ -29,3 +29,5 @@ JuliaLocalPreferences.toml
 
 /docs/Manifest*.toml
 /docs/build/
+
+benchmark/
