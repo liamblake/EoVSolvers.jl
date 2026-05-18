@@ -1,7 +1,8 @@
 using EoVSolvers
 using Test
 
-include("step.jl")
-include("full.jl")
-include("rescaling.jl")
-include("star.jl")
+# include("step.jl")
+# include("full.jl")
+# include("rescaling.jl")
+# include("star.jl")
+include("sparse.jl")

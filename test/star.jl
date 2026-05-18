@@ -257,8 +257,8 @@ using LinearAlgebra
             push!(errors, error)
         end
 
-        # For finite difference methods, error typically decreases as delta 
-        # decreases until roundoff errors dominate. Just check that errors 
+        # For finite difference methods, error typically decreases as delta
+        # decreases until roundoff errors dominate. Just check that errors
         # are reasonable and at least one smaller delta improves accuracy
         @test all(e -> e < 1e-2, errors)  # All errors should be small
     end
@@ -382,7 +382,7 @@ using LinearAlgebra
         @test isfinite(x[1])
         @test isfinite(x[2])
         @test all(isfinite.(Q))
-        
+
         # Q should have non-zero off-diagonal elements (coupled system)
         @test abs(Q[1, 2]) > 1e-4
         @test abs(Q[2, 1]) > 1e-4
