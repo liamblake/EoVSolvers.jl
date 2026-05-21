@@ -82,7 +82,7 @@ Nothing, as the arguments `x` and `Q` are modified in-place to contain the updat
 """
 function state_eov_rk4_step!(
     x::AbstractVector{X},
-    Q::AbstractMatrix{X},
+    Q::QM,
     f!::V,
     jac!::J,
     t1::T,
@@ -90,72 +90,64 @@ function state_eov_rk4_step!(
     _state_alloc1::AbstractVector{X} = similar(x),
     _state_alloc2::AbstractVector{X} = similar(x),
     _state_alloc3::AbstractVector{X} = similar(x),
-    _mat_alloc1::AbstractMatrix{X} = similar(Q),
-    _mat_alloc2::AbstractMatrix{X} = similar(Q),
-    _mat_alloc3::AbstractMatrix{X} = similar(Q),
-    _mat_alloc4::AbstractMatrix{X} = similar(Q),
-) where {X<:Real,V<:Function,J<:Function,T<:Real}
-
-    # Copy state into state_alloc2
+    _jac_alloc::JM = similar(Q),
+    _mat_alloc1::QM = similar(Q),
+    _mat_alloc2::QM = similar(Q),
+    _mat_alloc3::QM = similar(Q),
+) where {X<:Real,V<:Function,J<:Function,T<:Real,JM<:AbstractMatrix{X},QM<:AbstractMatrix{X}}
+    # x0 and Q0 base states
     copyto!(_state_alloc1, x)
     copyto!(_mat_alloc1, Q)
 
     # Stage 1
-    jac!(_mat_alloc3, _state_alloc1, t1)
+    jac!(_jac_alloc, _state_alloc1, t1)
     f!(_state_alloc2, _state_alloc1, t1)
+
     rmul!(_state_alloc2, dt)
+    # Compute J * Q * dt in one BLAS call, storing in _mat_alloc2
+    mul!(_mat_alloc2, _jac_alloc, _mat_alloc1, dt, zero(X))
 
-    mul!(_mat_alloc2, _mat_alloc3, _mat_alloc1)
-    rmul!(_mat_alloc2, dt)
-
-    axpy!(1.0 / 6.0, _state_alloc2, x)
-    axpy!(1.0 / 6.0, _mat_alloc2, Q)
+    @. x += (1.0 / 6.0) * _state_alloc2
+    @. Q += (1.0 / 6.0) * _mat_alloc2
 
     # Stage 2
-    # Use in-place computation to avoid allocation
-    copyto!(_state_alloc3, _state_alloc1)
-    axpy!(0.5, _state_alloc2, _state_alloc3)
-    jac!(_mat_alloc3, _state_alloc3, t1 + 0.5 * dt)
+    @. _state_alloc3 = _state_alloc1 + 0.5 * _state_alloc2
+    @. _mat_alloc3 = _mat_alloc1 + 0.5 * _mat_alloc2
+
+    jac!(_jac_alloc, _state_alloc3, t1 + 0.5 * dt)
     f!(_state_alloc2, _state_alloc3, t1 + 0.5 * dt)
+
     rmul!(_state_alloc2, dt)
+    mul!(_mat_alloc2, _jac_alloc, _mat_alloc3, dt, zero(X))
 
-    copyto!(_mat_alloc4, _mat_alloc1)
-    axpy!(0.5, _mat_alloc2, _mat_alloc4)
-    mul!(_mat_alloc2, _mat_alloc3, _mat_alloc4)
-    rmul!(_mat_alloc2, dt)
-
-    axpy!(1.0 / 3.0, _state_alloc2, x)
-    axpy!(1.0 / 3.0, _mat_alloc2, Q)
+    @. x += (1.0 / 3.0) * _state_alloc2
+    @. Q += (1.0 / 3.0) * _mat_alloc2
 
     # Stage 3
-    copyto!(_state_alloc3, _state_alloc1)
-    axpy!(0.5, _state_alloc2, _state_alloc3)
-    jac!(_mat_alloc3, _state_alloc3, t1 + 0.5 * dt)
+    @. _state_alloc3 = _state_alloc1 + 0.5 * _state_alloc2
+    @. _mat_alloc3 = _mat_alloc1 + 0.5 * _mat_alloc2
+
+    jac!(_jac_alloc, _state_alloc3, t1 + 0.5 * dt)
     f!(_state_alloc2, _state_alloc3, t1 + 0.5 * dt)
+
     rmul!(_state_alloc2, dt)
+    mul!(_mat_alloc2, _jac_alloc, _mat_alloc3, dt, zero(X))
 
-    copyto!(_mat_alloc4, _mat_alloc1)
-    axpy!(0.5, _mat_alloc2, _mat_alloc4)
-    mul!(_mat_alloc2, _mat_alloc3, _mat_alloc4)
-    rmul!(_mat_alloc2, dt)
-
-    axpy!(1.0 / 3.0, _state_alloc2, x)
-    axpy!(1.0 / 3.0, _mat_alloc2, Q)
+    @. x += (1.0 / 3.0) * _state_alloc2
+    @. Q += (1.0 / 3.0) * _mat_alloc2
 
     # Stage 4
-    copyto!(_state_alloc3, _state_alloc1)
-    axpy!(1.0, _state_alloc2, _state_alloc3)
-    jac!(_mat_alloc3, _state_alloc3, t1 + dt)
+    @. _state_alloc3 = _state_alloc1 + _state_alloc2
+    @. _mat_alloc3 = _mat_alloc1 + _mat_alloc2
+
+    jac!(_jac_alloc, _state_alloc3, t1 + dt)
     f!(_state_alloc2, _state_alloc3, t1 + dt)
+
     rmul!(_state_alloc2, dt)
+    mul!(_mat_alloc2, _jac_alloc, _mat_alloc3, dt, zero(X))
 
-    copyto!(_mat_alloc4, _mat_alloc1)
-    axpy!(1.0, _mat_alloc2, _mat_alloc4)
-    mul!(_mat_alloc2, _mat_alloc3, _mat_alloc4)
-    rmul!(_mat_alloc2, dt)
-
-    axpy!(1.0 / 6.0, _state_alloc2, x)
-    axpy!(1.0 / 6.0, _mat_alloc2, Q)
+    @. x += (1.0 / 6.0) * _state_alloc2
+    @. Q += (1.0 / 6.0) * _mat_alloc2
 
     return nothing
 end

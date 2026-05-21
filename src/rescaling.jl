@@ -25,7 +25,7 @@ Nothing, as the arguments `x` and `Q` are modified in-place to contain the updat
 """
 function state_eov_rk4_rescaling!(
     x::AbstractVector{X},
-    Q::AbstractMatrix{X},
+    Q::QM,
     f!::V,
     jac!::J,
     t0::T,
@@ -35,11 +35,11 @@ function state_eov_rk4_rescaling!(
     _state_alloc1::AbstractVector{X} = similar(x),
     _state_alloc2::AbstractVector{X} = similar(x),
     _state_alloc3::AbstractVector{X} = similar(x),
-    _mat_alloc1::AbstractMatrix{X} = similar(Q),
-    _mat_alloc2::AbstractMatrix{X} = similar(Q),
-    _mat_alloc3::AbstractMatrix{X} = similar(Q),
-    _mat_alloc4::AbstractMatrix{X} = similar(Q),
-) where {X<:Real,V<:Function,J<:Function,T<:Real}
+    _jac_alloc::JM = similar(Q),
+    _mat_alloc1::QM = similar(Q),
+    _mat_alloc2::QM = similar(Q),
+    _mat_alloc3::QM = similar(Q),
+) where {X<:Real,V<:Function,J<:Function,T<:Real,JM<:AbstractMatrix{X},QM<:AbstractMatrix{X}}
     if L < 1
         throw(ArgumentError("Rescaling threshold L must be at least 1 for algorithm to iterate."))
     end
@@ -68,10 +68,10 @@ function state_eov_rk4_rescaling!(
                 _state_alloc1 = _state_alloc1,
                 _state_alloc2 = _state_alloc2,
                 _state_alloc3 = _state_alloc3,
+                _jac_alloc = _jac_alloc,
                 _mat_alloc1 = _mat_alloc1,
                 _mat_alloc2 = _mat_alloc2,
                 _mat_alloc3 = _mat_alloc3,
-                _mat_alloc4 = _mat_alloc4,
             )
             t += dt
             nv = opnorm(Q, 1)
